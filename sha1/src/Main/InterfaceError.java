@@ -1,4 +1,4 @@
-package InterfaceSha1;
+package Main;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -12,7 +12,7 @@ public class InterfaceError  {
 		this.textError=textError;
 		JOptionPane errorPane = new JOptionPane(this.textError, JOptionPane.QUESTION_MESSAGE);
 		JDialog dialog = errorPane.createDialog(new JFrame(), "Manual Creation");
-	    dialog.setLocationRelativeTo(null);//окно в центре экрана
+	    dialog.setLocationRelativeTo(null);
 		dialog.setTitle("ОШИБКА");
 		dialog.setVisible(true);
 		

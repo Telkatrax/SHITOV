@@ -1,8 +1,11 @@
-package InterfaceSha1;
+package Main;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.swing.ImageIcon;
@@ -15,11 +18,9 @@ import javax.swing.JTextField;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JButton;
 import javax.swing.JProgressBar;
-
-import AlgorithmsSha1.AlgorithmSha1;
 import Images.ResourceLoader;
 
-public class InterfaceSha1 extends JFrame {
+public class InterfaceSHA1 extends JFrame {
 	/**
 	 * 
 	 */
@@ -30,10 +31,10 @@ public class InterfaceSha1 extends JFrame {
 	private File input = null;
 	private File output = null;
 
-	public InterfaceSha1() {
+	public InterfaceSHA1() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		setTitle("SHA-1 Калькулятор");
+		setTitle("SHA1 Калькулятор");
 		JLabel lblNewLabel = new JLabel("Укажите имя файла:");
 		setVisible(true);
 		setSize(500,250);
@@ -156,11 +157,49 @@ public class InterfaceSha1 extends JFrame {
 				btnNewButton_2.addActionListener(new ActionListener(){
 					public void actionPerformed(ActionEvent ae){				
 						
-					AlgorithmSha1 sh = new AlgorithmSha1 ();	
-					String hash = sh.sha1(input.getAbsolutePath(),progressBar);
+						SHA1Digest rp = new SHA1Digest();
+						
+					    FileInputStream fis= null;
+					    
+						try {
+							fis = new FileInputStream(input);
+						} catch (FileNotFoundException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
+					    byte[] data = new byte[1024];
+					    int read = 0; 
+					    
+					    
+					    progressBar.setMinimum(0);
+					    progressBar.setMaximum((int) input.length());
+					  //  progressBar.setValue(30);
+					    try {
+							while ((read = fis.read(data)) != -1) {
+							    rp.update(data, 0, read);
+							    progressBar.setValue(data.length);
+							    
+							}
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						};
+					    byte[] hashBytes = new byte [rp.getDigestSize()];
+					    rp.doFinal(hashBytes, 0);
+
+					    StringBuffer sb = new StringBuffer();
+					    for (int i = 0; i < hashBytes.length; i++) {
+					      sb.append(Integer.toString((hashBytes[i] & 0xff) + 0x100, 16).substring(1));
+					    }
+					     
+					    String fileHash = sb.toString();
+					     
+					  //  System.out.println( fileHash);	
+					
 					try {
 						PrintWriter a = new PrintWriter (output);
-						a.print(hash);
+						a.print(fileHash);
 						a.close();
 					} catch (FileNotFoundException e) {
 						// TODO Auto-generated catch block
