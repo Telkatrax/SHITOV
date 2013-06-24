@@ -4,8 +4,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.Scanner;
 
 import javax.swing.ImageIcon;
@@ -32,6 +34,12 @@ public class RSA extends JFrame {
 	private File output = null;
 	private JTextField textField_2;
 	private JTextField textField_3;
+	private JTextField textField_4;
+	private JTextField textField_5;
+	int N=300;
+	BigInteger p ;
+	BigInteger q;
+	   private final static SecureRandom random = new SecureRandom();
 
 	public RSA() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -39,7 +47,7 @@ public class RSA extends JFrame {
 		setTitle("RSA Калькулятор");
 		JLabel lblNewLabel = new JLabel("Укажите имя файла:");
 		setVisible(true);
-		setSize(500,350);
+		setSize(500,400);
 		setLocationRelativeTo(null);//окно в центре экрана
 		setIconImage(img.getImage());
 		textField = new JTextField();
@@ -72,17 +80,31 @@ public class RSA extends JFrame {
 		textField_3 = new JTextField();
 		textField_3.setColumns(10);
 		textField_3.setText("300");
+		
+		textField_4 = new JTextField();
+		textField_4.setColumns(10);
+		
+		textField_5 = new JTextField();
+		textField_5.setColumns(10);
+		
+		JLabel lblNewLabel_5 = new JLabel("P:");
+		
+		JLabel lblNewLabel_6 = new JLabel("Q:");
+		
+		JButton btnNewButton_3 = new JButton("Generate");
+		
+		JButton btnNewButton_4 = new JButton("Generate");
 		GroupLayout groupLayout = new GroupLayout(getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
 				.addGroup(groupLayout.createSequentialGroup()
 					.addContainerGap()
-					.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
-						.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+					.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING)
+						.addGroup(groupLayout.createSequentialGroup()
 							.addComponent(textField, GroupLayout.DEFAULT_SIZE, 371, Short.MAX_VALUE)
 							.addGap(18)
 							.addComponent(btnNewButton))
-						.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+						.addGroup(groupLayout.createSequentialGroup()
 							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
 								.addGroup(groupLayout.createSequentialGroup()
 									.addComponent(lblNewLabel_2)
@@ -93,16 +115,30 @@ public class RSA extends JFrame {
 							.addGroup(groupLayout.createParallelGroup(Alignment.TRAILING, false)
 								.addComponent(btnNewButton_2, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 								.addComponent(btnNewButton_1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-						.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+						.addGroup(groupLayout.createSequentialGroup()
 							.addComponent(lblNewLabel_3)
 							.addGap(18)
 							.addComponent(textField_2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-						.addGroup(Alignment.TRAILING, groupLayout.createSequentialGroup()
+						.addGroup(groupLayout.createSequentialGroup()
 							.addComponent(lblNewLabel_4)
 							.addGap(18)
 							.addComponent(textField_3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 						.addComponent(lblNewLabel)
-						.addComponent(lblNewLabel_1))
+						.addComponent(lblNewLabel_1)
+						.addGroup(Alignment.LEADING, groupLayout.createSequentialGroup()
+							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+								.addGroup(groupLayout.createSequentialGroup()
+									.addComponent(btnNewButton_3)
+									.addGap(18)
+									.addComponent(lblNewLabel_5, GroupLayout.PREFERRED_SIZE, 28, GroupLayout.PREFERRED_SIZE))
+								.addGroup(groupLayout.createSequentialGroup()
+									.addComponent(btnNewButton_4)
+									.addGap(18)
+									.addComponent(lblNewLabel_6, GroupLayout.PREFERRED_SIZE, 27, GroupLayout.PREFERRED_SIZE)))
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addGroup(groupLayout.createParallelGroup(Alignment.LEADING)
+								.addComponent(textField_5, GroupLayout.DEFAULT_SIZE, 337, Short.MAX_VALUE)
+								.addComponent(textField_4, GroupLayout.DEFAULT_SIZE, 337, Short.MAX_VALUE))))
 					.addContainerGap())
 		);
 		groupLayout.setVerticalGroup(
@@ -135,7 +171,17 @@ public class RSA extends JFrame {
 					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblNewLabel_4)
 						.addComponent(textField_3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addContainerGap(72, Short.MAX_VALUE))
+					.addGap(18)
+					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(textField_4, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btnNewButton_3)
+						.addComponent(lblNewLabel_5))
+					.addGap(18)
+					.addGroup(groupLayout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(textField_5, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(btnNewButton_4)
+						.addComponent(lblNewLabel_6))
+					.addContainerGap(34, Short.MAX_VALUE))
 		);
 		getContentPane().setLayout(groupLayout);
 		setVisible(true);
@@ -183,12 +229,37 @@ public class RSA extends JFrame {
 					}
 				});
 				
+			//	BigInteger.probablePrime(N/2, random)
+				
+				btnNewButton_3.addActionListener(new ActionListener(){
+					public void actionPerformed(ActionEvent ae){				
+						N = Integer.parseInt(textField_3.getText());
+						p=BigInteger.probablePrime(N/2, random);
+						textField_4.setText(p.toString());
+					}
+						
+					});
+				btnNewButton_4.addActionListener(new ActionListener(){
+					public void actionPerformed(ActionEvent ae){				
+						N = Integer.parseInt(textField_3.getText());
+						q=BigInteger.probablePrime(N/2, random);
+						textField_5.setText(q.toString());
+					}
+						
+					});
+	
+	
 				
 				btnNewButton_2.addActionListener(new ActionListener(){
 					public void actionPerformed(ActionEvent ae){				
 						
-						 int N = Integer.parseInt(textField_3.getText());
-					      AlgorithmRsa key = new AlgorithmRsa(N,textField_2.getText());
+						 N = Integer.parseInt(textField_3.getText());
+						 p = new BigInteger(textField_4.getText());
+						 q = new BigInteger(textField_5.getText());
+						 //p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE)).mod(new BigInteger(Integer.toString(N)).compareTo(BigInteger.ONE)
+						 if(p==null||q==null   ) new InterfaceError("Некорректные начальные параметры");
+						 else{
+					      AlgorithmRsa key = new AlgorithmRsa(N,textField_2.getText(),p,q);
 					   
 			
 					    String ms = new String();
@@ -208,7 +279,7 @@ public class RSA extends JFrame {
 							e1.printStackTrace();
 						}
 						
-						 BigInteger message = new BigInteger(ms);
+						 BigInteger message = new BigInteger(ms.getBytes());
 
 					      BigInteger encrypt = key.encrypt(message);
 					      BigInteger decrypt = key.decrypt(encrypt);
@@ -216,16 +287,37 @@ public class RSA extends JFrame {
 					 //     System.out.println("encrpyted = " + encrypt);
 					   //   System.out.println("decrypted = " + decrypt);
 					try {
-						PrintWriter a = new PrintWriter (output);
-						a.println(encrypt);
-						a.println(decrypt);
-						a.close();
+						FileOutputStream out = new FileOutputStream (output);
+					//	PrintWriter a = new PrintWriter (output);
+						//a.println(encrypt);
+					//	a.println(decrypt);
+						//a.close();
+						try {
+							String str1= new String("encrypt:");
+							out.write(str1.getBytes());
+							byte tt [];
+							tt=encrypt.toByteArray();
+							for(int i=0;i<tt.length;i++)
+							out.write(tt[i]);
+							byte ss [];
+							String str= new String(System.getProperty("line.separator")+"decrypt:");
+							out.write(str.getBytes());
+							ss=decrypt.toByteArray();
+							for(int i=0;i<ss.length;i++)
+							out.write(ss[i]);
+							out.close();
+							
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						
 					} catch (FileNotFoundException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				
-					
+						 }
 					
 					}
 						
