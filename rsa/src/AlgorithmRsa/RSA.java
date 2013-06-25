@@ -3,13 +3,10 @@ package AlgorithmRsa;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.Scanner;
-
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -75,7 +72,7 @@ public class RSA extends JFrame {
 		textField_2.setColumns(10);
 		textField_2.setText("65537");
 		
-		JLabel lblNewLabel_4 = new JLabel("bit length prime random p and q (> 2)");
+		JLabel lblNewLabel_4 = new JLabel("N:bit length prime random p and q (>= 9)");
 		
 		textField_3 = new JTextField();
 		textField_3.setColumns(10);
@@ -234,7 +231,7 @@ public class RSA extends JFrame {
 				btnNewButton_3.addActionListener(new ActionListener(){
 					public void actionPerformed(ActionEvent ae){				
 						N = Integer.parseInt(textField_3.getText());
-						p=BigInteger.probablePrime(N/2, random);
+						p=BigInteger.probablePrime(N, random);
 						textField_4.setText(p.toString());
 					}
 						
@@ -242,7 +239,7 @@ public class RSA extends JFrame {
 				btnNewButton_4.addActionListener(new ActionListener(){
 					public void actionPerformed(ActionEvent ae){				
 						N = Integer.parseInt(textField_3.getText());
-						q=BigInteger.probablePrime(N/2, random);
+						q=BigInteger.probablePrime(N, random);
 						textField_5.setText(q.toString());
 					}
 						
@@ -252,74 +249,88 @@ public class RSA extends JFrame {
 				
 				btnNewButton_2.addActionListener(new ActionListener(){
 					public void actionPerformed(ActionEvent ae){				
+						int sum=0;
+
 						
-						 N = Integer.parseInt(textField_3.getText());
-						 p = new BigInteger(textField_4.getText());
-						 q = new BigInteger(textField_5.getText());
 						 //p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE)).mod(new BigInteger(Integer.toString(N)).compareTo(BigInteger.ONE)
-						 if(p==null||q==null   ) new InterfaceError("Некорректные начальные параметры");
+						 if(textField_4.getText().length()==0||textField_5.getText().length()==0  
+								 ||textField_3.getText().length()==0 ) 
+							 new InterfaceError("Некорректные начальные параметры(p,q,N)");
 						 else{
+							 N = Integer.parseInt(textField_3.getText());
+							 p = new BigInteger(textField_4.getText());
+							 q = new BigInteger(textField_5.getText());
+							 BigInteger phi=p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));
+							 BigInteger publKey=new BigInteger(textField_2.getText());
+							 if(phi.gcd(publKey).compareTo(BigInteger.ONE)!=0||publKey.compareTo(phi)>0)
+								 new InterfaceError("Некорректные начальные параметры(Public key) gcd(phi,publ key)!=1- error");
+							 else{
 					      AlgorithmRsa key = new AlgorithmRsa(N,textField_2.getText(),p,q);
 					   
 			
-					    String ms = new String();
+					 //   String ms = new String();
 					    progressBar.setMinimum(0);
 					    progressBar.setMaximum((int) input.length());
+					    try{
+					   	
+					    FileInputStream in = new FileInputStream (input);
+					    FileOutputStream out = new FileOutputStream (output);
+					    byte data[] = new byte [(int) input.length()];
+					    in.read(data);
+					  
+					   //елим на (N-1)/8 байтные блоки
+							for(int i=0;i<data.length;i+=(N-1)/8){
+								byte prom[]= new byte [N/8];
+									int end=i+((N-1)/8);
+										int j = i;
+											int jj= i;
+								 if(i>data.length-((N-1)/8))
+								 	{
+									 	end=data.length-((N-1)/8);
+									 	jj-=((N-1)/8);
+								 	}
+						for(int k=0;jj<end;j++,k++ ,jj++ )
+							prom[k]=data[j];
+						sum+=prom.length;
+						 progressBar.setValue(sum);
+									
+						 BigInteger message = new BigInteger(prom);
+              	         BigInteger encrypt = key.encrypt(message);
+					     BigInteger decrypt = key.decrypt(encrypt);
+					     
 					    
-					    try {
-					    	
-							Scanner sc = new Scanner (input);
-							ms=sc.next();
-							progressBar.setValue(ms.length());
-							
-							
-							
-						} catch (FileNotFoundException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-						
-						 BigInteger message = new BigInteger(ms.getBytes());
-
-					      BigInteger encrypt = key.encrypt(message);
-					      BigInteger decrypt = key.decrypt(encrypt);
+					     String str1= new String("encrypt:");
+					     String str2= new String("decrypt:");
+					     String str= new String(System.getProperty("line.separator"));
+					        
+					    //ШИФРАЦИЯ
+					     	out.write(str1.getBytes());
+					     		byte tt [];
+					     			tt=encrypt.toByteArray();
+					     				for(int ii=0;ii<tt.length;ii++)
+					     					out.write(tt[ii]);
+					     						out.write(str.getBytes());
+					     //ДЕШИФРАЦИЯ	
+					        out.write(str2.getBytes());
+								byte ss [];							
+									ss=decrypt.toByteArray();
+										for(int ii=0;ii<ss.length;ii++)
+											out.write(ss[ii]);
+												out.write(str.getBytes());
+					    }
+					    out.close();
 					//      System.out.println("message   = " + message);
 					 //     System.out.println("encrpyted = " + encrypt);
 					   //   System.out.println("decrypted = " + decrypt);
-					try {
-						FileOutputStream out = new FileOutputStream (output);
-					//	PrintWriter a = new PrintWriter (output);
-						//a.println(encrypt);
-					//	a.println(decrypt);
-						//a.close();
-						try {
-							String str1= new String("encrypt:");
-							out.write(str1.getBytes());
-							byte tt [];
-							tt=encrypt.toByteArray();
-							for(int i=0;i<tt.length;i++)
-							out.write(tt[i]);
-							byte ss [];
-							String str= new String(System.getProperty("line.separator")+"decrypt:");
-							out.write(str.getBytes());
-							ss=decrypt.toByteArray();
-							for(int i=0;i<ss.length;i++)
-							out.write(ss[i]);
-							out.close();
-							
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						
-					} catch (FileNotFoundException e) {
+				
+					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				
 						 }
 					
-					}
+					}}
 						
 					});
 	
